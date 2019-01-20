@@ -2,6 +2,7 @@ package com.example.bobek.navdrawertest.LogBookModule;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -46,14 +47,11 @@ public class FragmentLogBookViewPager extends Fragment {
     long fragmentDate;
     ArrayList<LogBookArrayListItem> logBookArrayList;
     LogBookListArrayAdapter adapter;
-    //LogBookListAdapter adapter;
-    //Cursor cursor;
-    //DatabaseHelper handler;
-    //SQLiteDatabase database;
     private TextView tvContent;
     private AVLoadingIndicatorView ivAvi;
     ListView listView;
     Context mContext;
+    private ViewModelLogBook mViewModelLogBook;
 
     public static FragmentLogBookViewPager newInstance(long date) {
         FragmentLogBookViewPager fragmentFirst = new FragmentLogBookViewPager();
@@ -66,6 +64,7 @@ public class FragmentLogBookViewPager extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mViewModelLogBook = ViewModelProviders.of(getActivity()).get(ViewModelLogBook.class);
         Log.i("LogBookFragmentContent","onCreate "+ TimeUtils.convertDate(fragmentDate, "yyyy-MM-dd"));
         final long millis = getArguments().getLong(KEY_DATE);
         if (millis > 0) {
@@ -97,26 +96,40 @@ public class FragmentLogBookViewPager extends Fragment {
         //ListView listView = view.findViewById(R.id.log_book_list);
         //listView.setAdapter(adapter);
 
-        Log.i("LogBookFragmentContent", "in finally clause " + TimeUtils.convertDate(fragmentDate, "yyyy-MM-dd"));
-        return view;
-
-        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                Log.i("EditClimb", "OnItemClick " + (int) id + " " + position + " " + fragmentDate);
+
+                int childRowID = adapter.getItem(position).getRowId();
+                int isClimb = adapter.getItem(position).getClimbCode();
+
                 // Find the child row ID & whether it is a climb or not
-                int childRowID = DatabaseReadWrite.getCalendarTrackerChildRowID(id, context);
-                int isClimb = DatabaseReadWrite.getCalendarTrackerIsClimb(id, context);
+                //int childRowID = DatabaseReadWrite.getCalendarTrackerChildRowID(id, mContext);
+                //int isClimb = DatabaseReadWrite.getCalendarTrackerIsClimb(id, mContext);
 
                 // if it is a climb, then start a new intent for modifying the climb, if not, start for modifying training
                 if (isClimb == DatabaseContract.IS_CLIMB) {
-                    Intent editClimbIntent = new Intent(context, AddClimb.class);
+                    mViewModelLogBook.setIsNewClimbFalse();
+                    mViewModelLogBook.setAddClimbRowId(childRowID);
+                    mViewModelLogBook.setAddClimbDate(fragmentDate);
+                    /*Intent editClimbIntent = new Intent(context, AddClimb.class);
                     editClimbIntent.putExtra("EditOrNewFlag", ITEM_EDIT);
                     editClimbIntent.putExtra("RowID", childRowID);
                     editClimbIntent.putExtra("Date", fragmentDate);
                     // Start the new activity
-                    Log.i("TAG ME UP", "OnItemClick " + (int) id + " " + ITEM_EDIT + " " + fragmentDate);
-                    startActivity(editClimbIntent);
-                } else {
+                    startActivity(editClimbIntent);*/
+
+                    Log.i("EditClimb", "OnItemClick " + (int) id + " " + ITEM_EDIT + " " + fragmentDate);
+
+                    FragmentAddClimb fragmentAddClimb = new FragmentAddClimb();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.flContent, fragmentAddClimb, "fragmentAddClimb")
+                            .addToBackStack(null)
+                            .commit();
+
+                } /*else {
                     Intent editWorkoutIntent = new Intent(context, AddWorkout.class);
                     editWorkoutIntent.putExtra("EditOrNewFlag", ITEM_EDIT);
                     editWorkoutIntent.putExtra("RowID", childRowID);
@@ -124,9 +137,9 @@ public class FragmentLogBookViewPager extends Fragment {
                     // Start the new activity
                     Log.i("TAG ME UP", "OnItemClick " + (int) id + " " + ITEM_EDIT + " " + fragmentDate);
                     startActivity(editWorkoutIntent);
-                }
+                }*/
             }
-        });*/
+        });
 
         /*listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -139,6 +152,8 @@ public class FragmentLogBookViewPager extends Fragment {
                 return true;
             }
         });*/
+
+        return view;
 
     }
 

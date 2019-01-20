@@ -2,6 +2,7 @@ package com.example.bobek.navdrawertest.LogBookModule;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +52,8 @@ import com.wang.avi.AVLoadingIndicatorView;
 import in.galaxyofandroid.spinerdialog.OnSpinerItemClick;
 import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -66,6 +69,7 @@ public class FragmentAddClimb extends Fragment {
     private static final int REQUEST_CHECK_SETTINGS = 4;
 
     private ViewModelAddClimb mViewModelAddClimb;
+    private ViewModelLogBook mViewModelLogBook;
 
     Context mContext;
 
@@ -83,16 +87,12 @@ public class FragmentAddClimb extends Fragment {
     EditText gradeView;
     Button gpsButton;
     Button cancelButton;
+    Button saveButton;
     SpinnerDialog spinnerDialog;
 
     private FusedLocationProviderClient mFusedLocationClient;
     LocationRequest mLocationRequest;
     LocationCallback mLocationCallback;
-
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -100,23 +100,16 @@ public class FragmentAddClimb extends Fragment {
         // Required empty public constructor
     }
 
-    public static FragmentAddClimb newInstance(String param1, String param2) {
+    public static FragmentAddClimb newInstance() {
         FragmentAddClimb fragment = new FragmentAddClimb();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         mViewModelAddClimb = ViewModelProviders.of(getActivity()).get(ViewModelAddClimb.class);
+        mViewModelLogBook = ViewModelProviders.of(getActivity()).get(ViewModelLogBook.class);
     }
 
     @Override
@@ -168,18 +161,22 @@ public class FragmentAddClimb extends Fragment {
             ;
         };
 
-        Intent inputIntent = getIntent();
-        inputIntentCode = inputIntent.getIntExtra("EditOrNewFlag", 0);
-        inputRowID = inputIntent.getIntExtra("RowID", 0);
-        outputDate = inputIntent.getLongExtra("Date", 0);
+        //Intent inputIntent = getIntent();
+        //inputIntentCode = inputIntent.getIntExtra("EditOrNewFlag", 0);
+        //inputRowID = inputIntent.getIntExtra("RowID", 0);
+        //outputDate = inputIntent.getLongExtra("Date", 0);
 
-        if (inputIntentCode == ADD_CLIMB_NEW) {
+        mViewModelAddClimb.setInputIsNewClimb(mViewModelLogBook.getIsNewClimb());
+        mViewModelAddClimb.setInputRowID(mViewModelLogBook.getAddClimbRowId());
+        mViewModelAddClimb.setOutputDate(mViewModelLogBook.getAddClimbDate());
+
+        if (mViewModelAddClimb.getInputIsNewClimb()) {
             // Add a new climb, don't import any data to the form
             //outputDate = Calendar.getInstance().getTimeInMillis();
             dateView.setText(TimeUtils.convertDate(mViewModelAddClimb.getOutputDate(), "yyyy-MM-dd"));
             locationNewNameView.setVisibility(View.GONE); // Hide the location name input view
 
-        } else if (inputIntentCode == ADD_CLIMB_EDIT) {
+        } else {
             // Edit existing record, import data into the form
             // Load climb log data for a specific row ID
             mViewModelAddClimb.loadClimbDetails(mContext);
@@ -214,7 +211,7 @@ public class FragmentAddClimb extends Fragment {
         gradeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickGrade();
+                //pickGrade();
             }
         });
 
@@ -222,33 +219,33 @@ public class FragmentAddClimb extends Fragment {
         ascentTypeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pickAscentType();
+                //pickAscentType();
             }
         });
 
         // Listener for the location picker selection
-        initialiseLocationArrays();
-        spinnerDialog = new SpinnerDialog(this, locationNames, "Select Location");
+        mViewModelAddClimb.initialiseLocationArrays(mContext);
+        spinnerDialog = new SpinnerDialog(this.getActivity(), mViewModelAddClimb.getLocationNames(), "Select Location");
         spinnerDialog.bindOnSpinerListener(new OnSpinerItemClick() {
             @Override
             public void onClick(String item, int position) {
                 if (position == 0) {
                     locationNameView.setText(item);
-                    outputLocationId = locationIds.get(position);
+                    mViewModelAddClimb.setOutputLocationId(mViewModelAddClimb.getLocationIds().get(position));
                     locationNewNameView.setVisibility(View.VISIBLE);
-                    outputIsNewLocation = true;
+                    mViewModelAddClimb.setOutputIsNewLocation(true);
                 } else {
-                    outputIsNewLocation = false;
+                    mViewModelAddClimb.setOutputIsNewLocation(false);
                     locationNameView.setText(item);
-                    outputLocationId = locationIds.get(position);
+                    mViewModelAddClimb.setOutputLocationId(mViewModelAddClimb.getLocationIds().get(position));
                     locationNewNameView.setVisibility(View.GONE);
-                    outputHasGps = locationIsGps.get(position);
-                    outputLatitude = locationLatitudes.get(position);
-                    outputLongitude = locationLongitudes.get(position);
-                    outputLocationName = item;
-                    if (outputHasGps == DatabaseContract.IS_GPS_TRUE) {
-                        textViewLatitude.setText("" + outputLatitude);
-                        textViewLongitude.setText("" + outputLongitude);
+                    mViewModelAddClimb.setOutputHasGps(mViewModelAddClimb.getLocationIsGps().get(position));
+                    mViewModelAddClimb.setOutputLatitude(mViewModelAddClimb.getLocationLatitudes().get(position));
+                    mViewModelAddClimb.setOutputLongitude(mViewModelAddClimb.getLocationLongitudes().get(position));
+                    mViewModelAddClimb.setOutputLocationName(item);
+                    if (mViewModelAddClimb.getOutputHasGps() == DatabaseContract.IS_GPS_TRUE) {
+                        textViewLatitude.setText("" + mViewModelAddClimb.getOutputLatitude());
+                        textViewLongitude.setText("" + mViewModelAddClimb.getOutputLongitude());
                         ivGreenTick.setVisibility(View.VISIBLE);
                         ivGreyCross.setVisibility(View.GONE);
                         ivAvi.hide();
@@ -275,7 +272,7 @@ public class FragmentAddClimb extends Fragment {
 
             @Override
             public void onClick(View v) {
-                if (gpsAccessPermission) {
+                if (mViewModelAddClimb.getGpsAccessPermission()) {
                     Log.i("AddClimb GPS", "onCreate > GPS Button Pressed Access > gpsAccessPermission=true");
                     //gpsGetLastLocation();
                     createLocationRequest();
@@ -286,63 +283,41 @@ public class FragmentAddClimb extends Fragment {
             }
         });
 
+        // Listener for checking the first-ascent check-box
+        firstAscentCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = ((CheckBox) v).isChecked();
+                if (checked) {
+                    mViewModelAddClimb.setOutputFirstAscent(DatabaseContract.FIRSTASCENT_TRUE);
+                } else {
+                    mViewModelAddClimb.setOutputFirstAscent(DatabaseContract.FIRSTASCENT_FALSE);
+                }
+            }
+        });
+
         // Listener for the save button
-        Button saveButton = findViewById(R.id.log_climb_save);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 EditText locationNameViewOutput;
-                if (outputIsNewLocation) {
-                    locationNameViewOutput = findViewById(R.id.editText2);
+                if (mViewModelAddClimb.getOutputIsNewLocation()) {
+                    locationNameViewOutput = locationNewNameView;
                 } else {
-                    locationNameViewOutput = findViewById(R.id.editText2a);
+                    locationNameViewOutput = locationNameView;
                 }
-                CheckBox firstAscentCheckBox = findViewById(R.id.checkbox_firstascent);
 
-                outputRouteName = routeNameView.getText().toString();
-                outputLocationName = locationNameViewOutput.getText().toString();
-                if (firstAscentCheckBox.isChecked()) {
-                    outputFirstAscent = DatabaseContract.FIRSTASCENT_TRUE;
-                } else {
-                    outputFirstAscent = DatabaseContract.FIRSTASCENT_FALSE;
-                }
+                mViewModelAddClimb.setOutputRouteName(routeNameView.getText().toString());
+                mViewModelAddClimb.setOutputLocationName(locationNameViewOutput.getText().toString());
 
                 if (checkDataFields()) {
-                    if (inputIntentCode == ADD_CLIMB_EDIT) {
-                        long updateResult = DatabaseReadWrite.updateClimbLogData(outputRouteName,
-                                outputIsNewLocation,
-                                outputLocationName,
-                                outputLocationId,
-                                outputAscent,
-                                outputGradeName,
-                                outputGradeNumber,
-                                outputDate,
-                                outputFirstAscent,
-                                outputHasGps,
-                                outputLatitude,
-                                outputLongitude,
-                                inputRowID,
-                                AddClimb.this);
-                        //Toast.makeText(getApplicationContext(), "Existing Row ID: " + String.valueOf(updateResult), Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else if (inputIntentCode == ADD_CLIMB_NEW) {
-                        long writeResult = DatabaseReadWrite.writeClimbLogData(outputRouteName,
-                                outputIsNewLocation,
-                                outputLocationName,
-                                outputLocationId,
-                                outputAscent,
-                                outputGradeName,
-                                outputGradeNumber,
-                                outputDate,
-                                outputFirstAscent,
-                                outputHasGps,
-                                outputLatitude,
-                                outputLongitude,
-                                AddClimb.this);
-                        DatabaseReadWrite.writeCalendarUpdate(DatabaseContract.IS_CLIMB, outputDate, writeResult, AddClimb.this);
-                        //Toast.makeText(getApplicationContext(), "New Row ID: " + String.valueOf(writeResult), Toast.LENGTH_SHORT).show();
-                        finish();
+                    if (mViewModelAddClimb.getInputIsNewClimb()) {
+                        mViewModelAddClimb.saveNewClimb(mContext);
+                        exitFragment();
+                    } else {
+                        mViewModelAddClimb.updateExistingClimb(mContext);
+                        exitFragment();
                     }
                 }
 
@@ -354,17 +329,9 @@ public class FragmentAddClimb extends Fragment {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager = getFragmentManager();
-                if (fragmentManager.getBackStackEntryCount() > 0) {
-                    Log.i("MainActivity", "popping backstack");
-                    fragmentManager.popBackStack();
-                } else {
-                    Log.i("MainActivity", "nothing on backstack, calling super");
-                    //super.onBackPressed();
-                }
+                exitFragment();
             }
         });
-
 
         return view;
     }
@@ -388,12 +355,12 @@ public class FragmentAddClimb extends Fragment {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if (requestCode == REQUEST_CHECK_SETTINGS) {
             if (resultCode == RESULT_OK) {
                 Log.i("AddClimb GPS", "onActivityResult = Success!");
-                mRequestingLocationUpdates = true;
+                mViewModelAddClimb.setRequestingLocationUpdates(true);
             } else {
                 Log.i("AddClimb GPS", "onActivityResult = No Success!");
             }
@@ -415,6 +382,18 @@ public class FragmentAddClimb extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
+    protected void exitFragment() {
+        mViewModelAddClimb.resetData();
+        FragmentManager fragmentManager = getFragmentManager();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            Log.i("MainActivity", "popping backstack");
+            fragmentManager.popBackStack();
+        } else {
+            Log.i("MainActivity", "nothing on backstack, calling super");
+            //super.onBackPressed();
+        }
+    }
+
     protected void mapViews(View view) {
         ivGreenTick = view.findViewById(R.id.iv_green_tick);
         ivGreyCross = view.findViewById(R.id.iv_grey_cross);
@@ -430,6 +409,7 @@ public class FragmentAddClimb extends Fragment {
         firstAscentCheckBox = view.findViewById(R.id.cb_add_climb_firstascent);
         gpsButton = view.findViewById(R.id.bt_getGps);
         cancelButton = view.findViewById(R.id.bt_add_climb_cancel);
+        saveButton = view.findViewById(R.id.bt_add_climb_save);
     }
 
     // check permission for accessing location
@@ -440,7 +420,7 @@ public class FragmentAddClimb extends Fragment {
                 requestPermissions(LOCATION_PERMS, LOCATION_REQUEST);
             }
         } else {
-            gpsAccessPermission = true;
+            mViewModelAddClimb.setGpsAccessPermission(true);
         }
     }
 
@@ -450,7 +430,7 @@ public class FragmentAddClimb extends Fragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            gpsAccessPermission = true;
+            mViewModelAddClimb.setGpsAccessPermission(true);
             Log.i("AddClimb GPS", "onRequestPermissionsResult = Access granted");
         }
 
@@ -459,19 +439,17 @@ public class FragmentAddClimb extends Fragment {
     // get the last GPS location
     @SuppressLint("MissingPermission")
     private void gpsGetLastLocation() {
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+        mFusedLocationClient.getLastLocation().addOnSuccessListener((Activity) mContext, new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
-                    outputLatitude = location.getLatitude();
-                    textViewLatitude.setText("" + outputLatitude);
-                    outputLongitude = location.getLongitude();
-                    textViewLongitude.setText("" + outputLongitude);
-                    Log.i("AddClimb GPS", "gpsGetLastLocation > long: " + outputLongitude + " lat: " + outputLatitude);
-                    outputHasGps = DatabaseContract.IS_GPS_TRUE;
+                    mViewModelAddClimb.setOutputLatitude(location.getLatitude());
+                    textViewLatitude.setText("" + mViewModelAddClimb.getOutputLatitude());
+                    mViewModelAddClimb.setOutputLongitude(location.getLongitude());
+                    textViewLongitude.setText("" + mViewModelAddClimb.getOutputLongitude());
+                    mViewModelAddClimb.setOutputHasGps(DatabaseContract.IS_GPS_TRUE);
                 } else {
-                    Log.i("AddClimb GPS", "gpsGetLastLocation = Null");
                 }
             }
         });
@@ -487,21 +465,20 @@ public class FragmentAddClimb extends Fragment {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
 
-        SettingsClient client = LocationServices.getSettingsClient(this);
+        SettingsClient client = LocationServices.getSettingsClient(mContext);
         Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
 
-        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+        task.addOnSuccessListener((Activity) mContext, new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                 // All location settings are satisfied. The client can initialize
                 // location requests here.
                 // ...
-                mRequestingLocationUpdates = true;
-                Log.i("AddClimb GPS", "createLocationRequest > task.addOnSuccessListener = Success!");
+                mViewModelAddClimb.setRequestingLocationUpdates(true);
             }
         });
 
-        task.addOnFailureListener(this, new OnFailureListener() {
+        task.addOnFailureListener((Activity) mContext, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof ResolvableApiException) {
@@ -512,7 +489,7 @@ public class FragmentAddClimb extends Fragment {
                         // Show the dialog by calling startResolutionForResult(),
                         // and check the result in onActivityResult().
                         ResolvableApiException resolvable = (ResolvableApiException) e;
-                        resolvable.startResolutionForResult(AddClimb.this,
+                        resolvable.startResolutionForResult((Activity) mContext,
                                 REQUEST_CHECK_SETTINGS);
                     } catch (IntentSender.SendIntentException sendEx) {
                         // Ignore the error.
@@ -526,7 +503,7 @@ public class FragmentAddClimb extends Fragment {
     private void startLocationUpdates() {
         Log.i("AddClimb GPS", "startLocationUpdates = starting updates");
 
-        if (gpsAccessPermission) {
+        if (mViewModelAddClimb.getGpsAccessPermission()) {
             ivGreenTick.setVisibility(View.GONE);
             ivGreyCross.setVisibility(View.GONE);
             //ivAvi.setVisibility(View.VISIBLE);
@@ -541,58 +518,11 @@ public class FragmentAddClimb extends Fragment {
         Log.i("AddClimb GPS", "stopLocationUpdates = stopping location updates");
     }
 
-    private void initialiseLocationArrays() {
-
-        locationNames.add("Create New");
-        locationIds.add(-2);
-        locationLatitudes.add(-999.0);
-        locationLongitudes.add(-999.0);
-        locationIsGps.add(-1);
-
-        DatabaseHelper handler = new DatabaseHelper(this);
-        SQLiteDatabase database = handler.getWritableDatabase();
-
-        Cursor locationCursor = DatabaseReadWrite.GetAllLocations(database);
-
-        try {
-            //check if the cursor has any items
-            if (locationCursor.getCount() > 0) {
-                int i = 0;
-                //cycle through all items and add to the list
-                while (i < locationCursor.getCount()) {
-                    locationCursor.moveToPosition(i);
-
-                    int idColumnOutput = locationCursor.getColumnIndex(DatabaseContract.LocationListEntry.COLUMN_LOCATIONNAME);
-                    locationNames.add(locationCursor.getString(idColumnOutput));
-
-                    idColumnOutput = locationCursor.getColumnIndex(DatabaseContract.LocationListEntry._ID);
-                    locationIds.add(locationCursor.getInt(idColumnOutput));
-
-                    idColumnOutput = locationCursor.getColumnIndex(DatabaseContract.LocationListEntry.COLUMN_ISGPS);
-                    locationIsGps.add(locationCursor.getInt(idColumnOutput));
-
-                    idColumnOutput = locationCursor.getColumnIndex(DatabaseContract.LocationListEntry.COLUMN_GPSLATITUDE);
-                    locationLatitudes.add(locationCursor.getDouble(idColumnOutput));
-
-                    idColumnOutput = locationCursor.getColumnIndex(DatabaseContract.LocationListEntry.COLUMN_GPSLONGITUDE);
-                    locationLongitudes.add(locationCursor.getDouble(idColumnOutput));
-
-                    i++;
-                }
-
-            }
-        } finally {
-            locationCursor.close();
-            database.close();
-            handler.close();
-        }
-    }
-
     private boolean checkDataFields() {
 
         boolean trigger = true;
 
-        if (outputDate == -1) {
+        if (mViewModelAddClimb.getOutputDate() == -1) {
             trigger = false;
             toggleEditTextColor(dateView, false);
             Log.i("checkDataFields", "outputDate");
@@ -600,7 +530,7 @@ public class FragmentAddClimb extends Fragment {
             toggleEditTextColor(dateView, true);
         }
 
-        if (outputRouteName.trim().equals("")) {
+        if (mViewModelAddClimb.getOutputRouteName().trim().equals("")) {
             trigger = false;
             toggleEditTextColor(routeNameView, false);
             Log.i("checkDataFields", "outputRouteName");
@@ -608,7 +538,7 @@ public class FragmentAddClimb extends Fragment {
             toggleEditTextColor(routeNameView, true);
         }
 
-        if (outputAscent == -1) {
+        if (mViewModelAddClimb.getOutputAscent() == -1) {
             trigger = false;
             toggleEditTextColor(ascentTypeView, false);
             Log.i("checkDataFields", "outputAscent");
@@ -616,7 +546,7 @@ public class FragmentAddClimb extends Fragment {
             toggleEditTextColor(ascentTypeView, true);
         }
 
-        if (outputGradeName == -1) {
+        if (mViewModelAddClimb.getOutputGradeName() == -1) {
             trigger = false;
             toggleEditTextColor(gradeView, false);
             Log.i("checkDataFields", "outputGradeName");
@@ -624,7 +554,7 @@ public class FragmentAddClimb extends Fragment {
             toggleEditTextColor(gradeView, true);
         }
 
-        if (outputGradeNumber == -1) {
+        if (mViewModelAddClimb.getOutputGradeNumber() == -1) {
             trigger = false;
             toggleEditTextColor(gradeView, false);
             Log.i("checkDataFields", "outputGradeNumber");
@@ -632,13 +562,13 @@ public class FragmentAddClimb extends Fragment {
             toggleEditTextColor(gradeView, true);
         }
 
-        if (outputFirstAscent == -1) {
+        if (mViewModelAddClimb.getOutputFirstAscent() == -1) {
             trigger = false;
             Log.i("checkDataFields", "outputFirstAscent");
         }
 
         // create new location, but no name entered
-        if (outputLocationId == -2 && outputLocationName.trim().equals("")) {
+        if (mViewModelAddClimb.getOutputLocationId() == -2 && mViewModelAddClimb.getOutputLocationName().trim().equals("")) {
             trigger = false;
             toggleEditTextColor(locationNewNameView, false);
             Log.i("checkDataFields", "outputLocationId & outputLocationName");
@@ -647,7 +577,7 @@ public class FragmentAddClimb extends Fragment {
         }
 
         // location not entered at all
-        if (outputLocationId == -1) {
+        if (mViewModelAddClimb.getOutputLocationId() == -1) {
             trigger = false;
             toggleEditTextColor(locationNameView, false);
             Log.i("checkDataFields", "outputLocationId");
@@ -657,7 +587,7 @@ public class FragmentAddClimb extends Fragment {
 
 
         if (!trigger) {
-            Toast.makeText(getApplicationContext(), "Insufficient information - please ensure all fields are filled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "Insufficient information - please ensure all fields are filled", Toast.LENGTH_SHORT).show();
         }
 
         return trigger;
@@ -670,21 +600,5 @@ public class FragmentAddClimb extends Fragment {
         } else {
             view.setHintTextColor((getResources().getColor(R.color.missingInput)));
         }
-    }
-
-    protected void mapViews() {
-        ivGreenTick = findViewById(R.id.iv_green_tick);
-        ivGreyCross = findViewById(R.id.iv_grey_cross);
-        ivAvi = findViewById(R.id.iv_av_loading_indicator);
-        textViewLatitude = findViewById(R.id.tv_latitude);
-        textViewLongitude = findViewById(R.id.tv_longitude);
-        routeNameView = findViewById(R.id.editText);
-        locationNewNameView = findViewById(R.id.editText2);
-        locationNameView = findViewById(R.id.editText2a);
-        ascentTypeView = findViewById(R.id.editText3);
-        gradeView = findViewById(R.id.editText4);
-        dateView = findViewById(R.id.editText5);
-        firstAscentCheckBox = findViewById(R.id.checkbox_firstascent);
-        gpsButton = findViewById(R.id.bt_getGps);
     }
 }
