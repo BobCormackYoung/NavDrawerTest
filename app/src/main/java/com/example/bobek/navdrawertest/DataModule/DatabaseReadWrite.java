@@ -9,6 +9,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.bobek.navdrawertest.LogBookModule.LogBookArrayListItem;
+import com.example.bobek.navdrawertest.LogBookModule.ascentpicker.AscentArrayListItem;
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.GradeArrayListItem;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1261,6 +1263,56 @@ public class DatabaseReadWrite {
         return cursor;
     }
 
+    public static ArrayList<GradeArrayListItem> getGradeArrayList(Context mContext, int rowId) {
+
+        ArrayList<GradeArrayListItem> outputArrayList = new ArrayList<>();
+
+        DatabaseHelper handler = new DatabaseHelper(mContext);
+        SQLiteDatabase database = handler.getWritableDatabase();
+
+        //grade type
+        String[] projection = {
+                DatabaseContract.GradeListEntry._ID,
+                DatabaseContract.GradeListEntry.COLUMN_GRADETYPECODE,
+                DatabaseContract.GradeListEntry.COLUMN_GRADENAME,
+                DatabaseContract.GradeListEntry.COLUMN_RELATIVEDIFFICULTY};
+        String whereClause = DatabaseContract.GradeListEntry.COLUMN_GRADETYPECODE + "=?";
+        String[] whereValue = {String.valueOf(rowId)};
+
+        Cursor cursor = database.query(DatabaseContract.GradeListEntry.TABLE_NAME,
+                projection,
+                whereClause,
+                whereValue,
+                null,
+                null,
+                null);
+
+        int idColumnOutput1 = cursor.getColumnIndex(DatabaseContract.GradeListEntry._ID);
+        int idColumnOutput2 = cursor.getColumnIndex(DatabaseContract.GradeListEntry.COLUMN_GRADETYPECODE);
+        int idColumnOutput3 = cursor.getColumnIndex(DatabaseContract.GradeListEntry.COLUMN_GRADENAME);
+        int idColumnOutput4 = cursor.getColumnIndex(DatabaseContract.GradeListEntry.COLUMN_RELATIVEDIFFICULTY);
+
+        int cursorCount = cursor.getCount();
+
+        if (cursorCount != 0) {
+            while (cursor.moveToNext()) {
+                int outputId = cursor.getInt(idColumnOutput1);
+                int outputGradeTypeCode = cursor.getInt(idColumnOutput2);
+                String outputGradeName = cursor.getString(idColumnOutput3);
+                double outputRelativeDifficulty = cursor.getDouble(idColumnOutput4);
+                outputArrayList.add(new GradeArrayListItem(outputId, outputGradeTypeCode, outputGradeName, outputRelativeDifficulty));
+            }
+        }
+
+        try {
+            return outputArrayList;
+        } finally {
+            cursor.close();
+            database.close();
+            handler.close();
+        }
+    }
+
     /**
      * return a cursor for all grade types
      *
@@ -1282,6 +1334,48 @@ public class DatabaseReadWrite {
                 null);
 
         return cursor;
+    }
+
+    public static ArrayList<GradeArrayListItem> getGradeTypeArrayList(Context mContext) {
+
+        ArrayList<GradeArrayListItem> outputArrayList = new ArrayList<>();
+
+        DatabaseHelper handler = new DatabaseHelper(mContext);
+        SQLiteDatabase database = handler.getWritableDatabase();
+
+        //grade type
+        String[] projection = {
+                DatabaseContract.GradeTypeEntry._ID,
+                DatabaseContract.GradeTypeEntry.COLUMN_GRADETYPENAME};
+
+        Cursor cursor = database.query(DatabaseContract.GradeTypeEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        int idColumnOutput1 = cursor.getColumnIndex(DatabaseContract.GradeTypeEntry._ID);
+        int idColumnOutput2 = cursor.getColumnIndex(DatabaseContract.GradeTypeEntry.COLUMN_GRADETYPENAME);
+
+        int cursorCount = cursor.getCount();
+
+        if (cursorCount != 0) {
+            while (cursor.moveToNext()) {
+                int outputId = cursor.getInt(idColumnOutput1);
+                String outputGradeType = cursor.getString(idColumnOutput2);
+                outputArrayList.add(new GradeArrayListItem(outputId, outputGradeType));
+            }
+        }
+
+        try {
+            return outputArrayList;
+        } finally {
+            cursor.close();
+            database.close();
+            handler.close();
+        }
     }
 
     /**
@@ -1306,6 +1400,51 @@ public class DatabaseReadWrite {
                 null);
 
         return cursor;
+    }
+
+    public static ArrayList<AscentArrayListItem> getAscentArrayList(Context mContext) {
+
+        ArrayList<AscentArrayListItem> outputArrayList = new ArrayList<>();
+
+        DatabaseHelper handler = new DatabaseHelper(mContext);
+        SQLiteDatabase database = handler.getWritableDatabase();
+
+        //grade type
+        String[] projection = {
+                DatabaseContract.AscentEntry._ID,
+                DatabaseContract.AscentEntry.COLUMN_ASCENTTYPENAME,
+                DatabaseContract.AscentEntry.COLUMN_DESCRIPTION};
+
+        Cursor cursor = database.query(DatabaseContract.AscentEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        int idColumnOutput1 = cursor.getColumnIndex(DatabaseContract.AscentEntry._ID);
+        int idColumnOutput2 = cursor.getColumnIndex(DatabaseContract.AscentEntry.COLUMN_ASCENTTYPENAME);
+        int idColumnOutput3 = cursor.getColumnIndex(DatabaseContract.AscentEntry.COLUMN_DESCRIPTION);
+
+        int cursorCount = cursor.getCount();
+
+        if (cursorCount != 0) {
+            while (cursor.moveToNext()) {
+                int outputId = cursor.getInt(idColumnOutput1);
+                String outputAscentType = cursor.getString(idColumnOutput2);
+                String outputAscentDescription = cursor.getString(idColumnOutput3);
+                outputArrayList.add(new AscentArrayListItem(outputId, outputAscentType, outputAscentDescription));
+            }
+        }
+
+        try {
+            return outputArrayList;
+        } finally {
+            cursor.close();
+            database.close();
+            handler.close();
+        }
     }
 
     /**

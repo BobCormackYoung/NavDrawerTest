@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 
 import com.example.bobek.navdrawertest.DataModule.DatabaseContract;
@@ -21,36 +22,37 @@ import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
 public class ViewModelAddClimb extends AndroidViewModel {
 
-    int outputGradeNumber = -1;
-    int outputGradeName = -1;
-    int outputAscent = -1;
-    int outputLocationId = -1;
-    int outputHasGps = 0;
-    double outputLatitude = 0;
-    double outputLongitude = 0;
-    String outputLocationName = null;
-    String outputRouteName = null;
-    String outputDateString = null;
-    String outputStringGradeName = null;
-    String outputStringGradeType = null;
-    String outputStringAscentType = null;
-    int outputFirstAscent = DatabaseContract.FIRSTASCENT_FALSE; //intialise as false, i.e. not first ascent
-    long outputDate = -1;
-    boolean inputIsNewClimb = true;
-    int inputRowID = -1;
-    boolean gpsAccessPermission = false;
-    boolean mRequestingLocationUpdates = false;
+    private int outputGradeNumber = -1;
+    private int outputGradeName = -1;
+    private int outputAscent = -1;
+    private int outputLocationId = -1;
+    private int outputHasGps = 0;
+    private double outputLatitude = 0;
+    private double outputLongitude = 0;
+    private String outputLocationName = null;
+    private String outputRouteName = null;
+    private String outputDateString = null;
+    private String outputStringGradeName = null;
+    private String outputStringGradeType = null;
+    private String outputStringAscentType = null;
+    private int outputFirstAscent = DatabaseContract.FIRSTASCENT_FALSE; //intialise as false, i.e. not first ascent
+    private long outputDate = -1;
+    private boolean inputIsNewClimb = true;
+    private int inputRowID = -1;
+    private boolean gpsAccessPermission = false;
+    private boolean mRequestingLocationUpdates = false;
 
-    ArrayList<String> locationNames = new ArrayList<>();
-    ArrayList<Integer> locationIds = new ArrayList<>();
-    ArrayList<Integer> locationIsGps = new ArrayList<>();
-    ArrayList<Double> locationLatitudes = new ArrayList<>();
-    ArrayList<Double> locationLongitudes = new ArrayList<>();
-    boolean outputIsNewLocation = true;
+    private ArrayList<String> locationNames = new ArrayList<>();
+    private ArrayList<Integer> locationIds = new ArrayList<>();
+    private ArrayList<Integer> locationIsGps = new ArrayList<>();
+    private ArrayList<Double> locationLatitudes = new ArrayList<>();
+    private ArrayList<Double> locationLongitudes = new ArrayList<>();
+    private boolean outputIsNewLocation = true;
 
     public ViewModelAddClimb(@NonNull Application application) {super(application);}
 
     public void resetData() {
+        Log.i("ViewModelAddClimb", "resetData");
         outputGradeNumber = -1;
         outputGradeName = -1;
         outputAscent = -1;

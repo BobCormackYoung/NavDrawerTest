@@ -65,7 +65,6 @@ public class FragmentLogBookViewPager extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mViewModelLogBook = ViewModelProviders.of(getActivity()).get(ViewModelLogBook.class);
-        Log.i("LogBookFragmentContent","onCreate "+ TimeUtils.convertDate(fragmentDate, "yyyy-MM-dd"));
         final long millis = getArguments().getLong(KEY_DATE);
         if (millis > 0) {
             final Context context = getActivity();
@@ -75,7 +74,6 @@ public class FragmentLogBookViewPager extends Fragment {
                 return;
             }
         }
-        //fragmentDate = 0;
     }
 
     @Override
@@ -92,36 +90,18 @@ public class FragmentLogBookViewPager extends Fragment {
         long dayEnd = dayStart + DAYPERIOD;
         listView = view.findViewById(R.id.log_book_list);
 
-        //adapter = new LogBookListArrayAdapter(context, logBookArrayList);
-        //ListView listView = view.findViewById(R.id.log_book_list);
-        //listView.setAdapter(adapter);
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
-                Log.i("EditClimb", "OnItemClick " + (int) id + " " + position + " " + fragmentDate);
-
                 int childRowID = adapter.getItem(position).getRowId();
                 int isClimb = adapter.getItem(position).getClimbCode();
-
-                // Find the child row ID & whether it is a climb or not
-                //int childRowID = DatabaseReadWrite.getCalendarTrackerChildRowID(id, mContext);
-                //int isClimb = DatabaseReadWrite.getCalendarTrackerIsClimb(id, mContext);
 
                 // if it is a climb, then start a new intent for modifying the climb, if not, start for modifying training
                 if (isClimb == DatabaseContract.IS_CLIMB) {
                     mViewModelLogBook.setIsNewClimbFalse();
                     mViewModelLogBook.setAddClimbRowId(childRowID);
                     mViewModelLogBook.setAddClimbDate(fragmentDate);
-                    /*Intent editClimbIntent = new Intent(context, AddClimb.class);
-                    editClimbIntent.putExtra("EditOrNewFlag", ITEM_EDIT);
-                    editClimbIntent.putExtra("RowID", childRowID);
-                    editClimbIntent.putExtra("Date", fragmentDate);
-                    // Start the new activity
-                    startActivity(editClimbIntent);*/
-
-                    Log.i("EditClimb", "OnItemClick " + (int) id + " " + ITEM_EDIT + " " + fragmentDate);
 
                     FragmentAddClimb fragmentAddClimb = new FragmentAddClimb();
                     getActivity().getSupportFragmentManager().beginTransaction()
@@ -166,7 +146,6 @@ public class FragmentLogBookViewPager extends Fragment {
         super.onResume();
         Log.i("LogBookFragmentContent","onResume "+ TimeUtils.convertDate(fragmentDate, "yyyy-MM-dd"));
         refreshData();
-        //refreshCursor();
     }
 
     @Override
@@ -181,25 +160,6 @@ public class FragmentLogBookViewPager extends Fragment {
         adapter = new LogBookListArrayAdapter(mContext, logBookArrayList);
         listView.setAdapter(adapter);
     }
-
-    //public Cursor getCursorBetweenDates(long dateStart, long dateEnd, SQLiteDatabase db) {
-    //    return db.rawQuery("select * from " + DatabaseContract.CalendarTrackerEntry.TABLE_NAME + " where " + DatabaseContract.CalendarTrackerEntry.COLUMN_DATE + " BETWEEN '" + dateStart + "' AND '" + dateEnd + "' ORDER BY Date ASC", null);
-    //}
-
-    /*public void refreshCursor() {
-        long dayStart = fragmentDate - millisToStartOfDay();
-        long dayEnd = dayStart + DAYPERIOD;
-        if (cursor!=null) {
-            cursor.close();
-        }
-
-        LoadCursorDataInput cursorDataInput = new LoadCursorDataInput();
-        cursorDataInput.setDayEnd(dayEnd);
-        cursorDataInput.setDayStart(dayStart);
-        LoadCursorTask runner = new LoadCursorTask();
-        runner.execute(cursorDataInput);
-
-    }*/
 
     /*public void updateExpandedItemsList() {
         for (int i = 0; i < cursor.getCount(); i++) {

@@ -14,8 +14,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.bobek.navdrawertest.LogBookModule.FragmentAddClimb;
 import com.example.bobek.navdrawertest.LogBookModule.FragmentLogBook;
+import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddClimb;
 import com.example.bobek.navdrawertest.LogBookModule.ViewModelLogBook;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -23,7 +27,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Class fragmentClass;
     private ViewModelMainActivity mViewModelMainActivity;
     private ViewModelLogBook mViewModelLogBook;
+    private ViewModelAddClimb mViewModelAddClimb;
     static DrawerLayout drawer;
+
+    String fragmentName;
+    private String fragmentNameDashboard = "FragmentDashboard";
+    private String fragmentNameLogBook = "FragmentLogBook";
+    private String fragmentNameCalendar = "FragmentCalendar";
+    private String fragmentNameLocationManager = "FragmentLocationManager";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mViewModelMainActivity = ViewModelProviders.of(this).get(ViewModelMainActivity.class);
         // ViewModel for LogBookData
         mViewModelLogBook = ViewModelProviders.of(this).get(ViewModelLogBook.class);
+        mViewModelAddClimb = ViewModelProviders.of(this).get(ViewModelAddClimb.class);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -67,9 +79,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+        //List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+        //int fragCount = fragmentList.size();
+        //Fragment lastFragment = fragmentList.get(fragCount-1);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (fragment instanceof FragmentAddClimb) {
+            mViewModelAddClimb.resetData();
+            getSupportFragmentManager().popBackStack();
         } else {
             super.onBackPressed();
         }
@@ -106,14 +125,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_dashboard) {
             fragmentClass = FragmentDashboard.class;
+            fragmentName = fragmentNameDashboard;
             mViewModelLogBook.resetData();
         } else if (id == R.id.nav_log_book) {
             fragmentClass = FragmentLogBook.class;
+            fragmentName = fragmentNameLogBook;
         } else if (id == R.id.nav_calendar) {
             fragmentClass = FragmentCalendar.class;
+            fragmentName = fragmentNameCalendar;
             mViewModelLogBook.resetData();
         } else if (id == R.id.nav_location_manager) {
             fragmentClass = FragmentLocationManager.class;
+            fragmentName = fragmentNameLocationManager;
             mViewModelLogBook.resetData();
         } else if (id == R.id.nav_share) {
 
@@ -130,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment, fragmentName).commit();
 
 
         //DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -141,4 +164,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static DrawerLayout getDrawer() {
         return drawer;
     }
+
+    public Fragment getVisibleFragment(){
+        FragmentManager fragmentManager = MainActivity.this.getSupportFragmentManager();
+        List<Fragment> fragments = fragmentManager.getFragments();
+        if(fragments != null){
+            for(Fragment fragment : fragments){
+                if(fragment != null && fragment.isVisible())
+                    return fragment;
+            }
+        }
+        return null;
+    }
+
+
+
 }

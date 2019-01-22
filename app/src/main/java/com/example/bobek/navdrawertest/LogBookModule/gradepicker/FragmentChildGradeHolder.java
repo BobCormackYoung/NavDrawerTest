@@ -1,4 +1,4 @@
-package com.example.bobek.navdrawertest.LogBookModule.ascentpicker;
+package com.example.bobek.navdrawertest.LogBookModule.gradepicker;
 
 
 import android.arch.lifecycle.ViewModelProviders;
@@ -12,29 +12,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.bobek.navdrawertest.DataModule.DatabaseReadWrite;
-import com.example.bobek.navdrawertest.LogBookModule.LogBookListArrayAdapter;
 import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddClimb;
-import com.example.bobek.navdrawertest.LogBookModule.ViewModelLogBook;
 import com.example.bobek.navdrawertest.R;
 
 import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link FragmentAscentHolder#newInstance} factory method to
- * create an instance of this fragment.
  */
-public class FragmentAscentHolder extends Fragment {
+public class FragmentChildGradeHolder extends Fragment {
 
     private ViewModelAddClimb mViewModelAddClimb;
-    private ArrayList<AscentArrayListItem> ascentArrayList;
-    AscentArrayAdapter adapter;
+    private ArrayList<GradeArrayListItem> childGradeArrayList;
+    GradeArrayAdapter adapter;
     Context mContext;
     ListView listView;
 
-    public FragmentAscentHolder() {
+    public FragmentChildGradeHolder() {
         // Required empty public constructor
     }
 
@@ -46,7 +43,7 @@ public class FragmentAscentHolder extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.listview_parent_list, container, false);
+        View view = inflater.inflate(R.layout.listview_child_list, container, false);
         mContext = getActivity();
         mapViews(view);
         refreshData();
@@ -54,8 +51,8 @@ public class FragmentAscentHolder extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mViewModelAddClimb.setOutputAscent(adapter.getItem(position).getId());
-                mViewModelAddClimb.setOutputStringAscentType(adapter.getItem(position).getAscentType());
+                mViewModelAddClimb.setOutputGradeNumber(adapter.getItem(position).getRowId());
+                mViewModelAddClimb.setOutputStringGradeName(adapter.getItem(position).getName());
                 exitFragment();
             }
         });
@@ -64,12 +61,12 @@ public class FragmentAscentHolder extends Fragment {
     }
 
     private void mapViews(View view) {
-        listView=view.findViewById(R.id.parent_listview);
+        listView=view.findViewById(R.id.child_list);
     }
 
     public void refreshData() {
-        ascentArrayList = DatabaseReadWrite.getAscentArrayList(mContext);
-        adapter = new AscentArrayAdapter(mContext, ascentArrayList);
+        childGradeArrayList = DatabaseReadWrite.getGradeArrayList(mContext, mViewModelAddClimb.getOutputGradeName());
+        adapter = new GradeArrayAdapter(mContext, childGradeArrayList);
         listView.setAdapter(adapter);
     }
 

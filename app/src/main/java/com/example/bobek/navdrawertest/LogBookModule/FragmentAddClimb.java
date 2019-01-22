@@ -32,6 +32,8 @@ import android.widget.Toast;
 import com.example.bobek.navdrawertest.DataModule.DatabaseContract;
 import com.example.bobek.navdrawertest.DataModule.DatabaseHelper;
 import com.example.bobek.navdrawertest.DataModule.DatabaseReadWrite;
+import com.example.bobek.navdrawertest.LogBookModule.ascentpicker.FragmentAscentHolder;
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.FragmentParentGradeHolder;
 import com.example.bobek.navdrawertest.MainActivity;
 import com.example.bobek.navdrawertest.R;
 import com.example.bobek.navdrawertest.UtilModule.TimeUtils;
@@ -161,11 +163,6 @@ public class FragmentAddClimb extends Fragment {
             ;
         };
 
-        //Intent inputIntent = getIntent();
-        //inputIntentCode = inputIntent.getIntExtra("EditOrNewFlag", 0);
-        //inputRowID = inputIntent.getIntExtra("RowID", 0);
-        //outputDate = inputIntent.getLongExtra("Date", 0);
-
         mViewModelAddClimb.setInputIsNewClimb(mViewModelLogBook.getIsNewClimb());
         mViewModelAddClimb.setInputRowID(mViewModelLogBook.getAddClimbRowId());
         mViewModelAddClimb.setOutputDate(mViewModelLogBook.getAddClimbDate());
@@ -211,7 +208,7 @@ public class FragmentAddClimb extends Fragment {
         gradeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //pickGrade();
+                pickGrade();
             }
         });
 
@@ -219,7 +216,7 @@ public class FragmentAddClimb extends Fragment {
         ascentTypeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //pickAscentType();
+                pickAscentType();
             }
         });
 
@@ -324,7 +321,6 @@ public class FragmentAddClimb extends Fragment {
             }
         });
 
-
         // Listener for the cancel button
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -336,6 +332,21 @@ public class FragmentAddClimb extends Fragment {
         return view;
     }
 
+    private void pickGrade() {
+        FragmentParentGradeHolder fragmentParentGradeHolder = new FragmentParentGradeHolder();
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.flContent, fragmentParentGradeHolder, "fragmentParentGradeHolder")
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void pickAscentType() {
+        FragmentAscentHolder fragmentAscentHolder = new FragmentAscentHolder();
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.flContent, fragmentAscentHolder, "fragmentAscentHolder")
+                .addToBackStack(null)
+                .commit();
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -352,6 +363,12 @@ public class FragmentAddClimb extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshViews();
     }
 
     @Override
@@ -600,5 +617,60 @@ public class FragmentAddClimb extends Fragment {
         } else {
             view.setHintTextColor((getResources().getColor(R.color.missingInput)));
         }
+    }
+
+    private void refreshViews() {
+
+        if (mViewModelAddClimb.getOutputGradeNumber()!=-1 & mViewModelAddClimb.getOutputGradeName() != -1) {
+            gradeView.setText(mViewModelAddClimb.getOutputStringGradeType() + " | " + mViewModelAddClimb.getOutputStringGradeName());
+        }
+
+        if (mViewModelAddClimb.getOutputAscent() != -1) {ascentTypeView.setText(mViewModelAddClimb.getOutputStringAscentType());;}
+
+        if (mViewModelAddClimb.getOutputHasGps() == DatabaseContract.IS_GPS_TRUE) {
+            textViewLatitude.setText("" + mViewModelAddClimb.getOutputLatitude());
+            textViewLongitude.setText("" + mViewModelAddClimb.getOutputLongitude());
+            ivGreenTick.setVisibility(View.VISIBLE);
+            ivGreyCross.setVisibility(View.GONE);
+            ivAvi.hide();
+        } else {
+            textViewLatitude.setText("No data");
+            textViewLongitude.setText("No data");
+            ivGreenTick.setVisibility(View.GONE);
+            ivGreyCross.setVisibility(View.VISIBLE);
+            ivAvi.hide();
+        }
+
+        /*public int getOutputLocationId();
+        public int getOutputHasGps();
+
+        public int getInputRowID();
+        public boolean getGpsAccessPermission();
+        public boolean getRequestingLocationUpdates();
+        public boolean getOutputIsNewLocation();
+        public boolean getInputIsNewClimb();
+        public long getOutputDate();
+        public double getOutputLatitude();
+        public double getOutputLongitude();
+        public String getOutputLocationName();
+        public String getOutputRouteName();
+        public String getOutputDateString();
+        public String getOutputStringGradeName();
+        public String getOutputStringGradeType();
+        public String getOutputStringAscentType();*/
+
+        /*routeNameView.setText(mViewModelAddClimb.getOutputRouteName());
+        dateView.setText(mViewModelAddClimb.getOutputDateString());
+
+        if (mViewModelAddClimb.getOutputFirstAscent() == DatabaseContract.FIRSTASCENT_TRUE) {
+            firstAscentCheckBox.setChecked(true);
+        } else if (mViewModelAddClimb.getOutputFirstAscent() == DatabaseContract.FIRSTASCENT_FALSE) {
+            firstAscentCheckBox.setChecked(false);
+        }
+
+        locationNameView.setText(mViewModelAddClimb.getOutputLocationName());
+        locationNewNameView.setVisibility(View.GONE);*/
+
+
     }
 }
