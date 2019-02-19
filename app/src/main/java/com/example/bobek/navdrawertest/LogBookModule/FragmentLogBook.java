@@ -2,7 +2,6 @@ package com.example.bobek.navdrawertest.LogBookModule;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,9 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.bobek.navdrawertest.MainActivity;
 import com.example.bobek.navdrawertest.R;
 import com.example.bobek.navdrawertest.UtilModule.CachingFragmentStatePagerAdapter;
 import com.example.bobek.navdrawertest.UtilModule.TimeUtils;
@@ -162,7 +161,29 @@ public class FragmentLogBook extends Fragment {
 
                 FragmentAddClimb fragmentAddClimb = new FragmentAddClimb();
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.flContent, fragmentAddClimb, "fragmentAddClimb")
+                        .replace(R.id.flContent, fragmentAddClimb, MainActivity.fragmentNameAddClimb)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        button_add_workout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get the currently displayed page position
+                // Get it's calendar instance (date)
+                // Convert date to milliseconds
+                int position = viewPager.getCurrentItem();
+                Calendar cal = TimeUtils.getDayForPosition(position);
+                long date = cal.getTimeInMillis();
+
+                mViewModelLogBook.setIsNewWorkoutTrue();
+                mViewModelLogBook.setAddClimbDate(date);
+                mViewModelLogBook.setAddWorkoutRowId(-1);
+
+                FragmentAddWorkout fragmentAddWorkout = new FragmentAddWorkout();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flContent, fragmentAddWorkout, MainActivity.fragmentNameAddWorkout)
                         .addToBackStack(null)
                         .commit();
             }

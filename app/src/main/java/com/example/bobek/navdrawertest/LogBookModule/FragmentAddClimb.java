@@ -56,14 +56,6 @@ import in.galaxyofandroid.spinerdialog.SpinnerDialog;
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link FragmentAddClimb.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link FragmentAddClimb#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FragmentAddClimb extends Fragment {
 
     private static final String[] LOCATION_PERMS = {Manifest.permission.ACCESS_FINE_LOCATION};
@@ -96,15 +88,8 @@ public class FragmentAddClimb extends Fragment {
     LocationRequest mLocationRequest;
     LocationCallback mLocationCallback;
 
-    private OnFragmentInteractionListener mListener;
-
     public FragmentAddClimb() {
         // Required empty public constructor
-    }
-
-    public static FragmentAddClimb newInstance() {
-        FragmentAddClimb fragment = new FragmentAddClimb();
-        return fragment;
     }
 
     @Override
@@ -208,6 +193,7 @@ public class FragmentAddClimb extends Fragment {
         gradeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.i("addclimb","gradeview onclick");
                 pickGrade();
             }
         });
@@ -231,6 +217,7 @@ public class FragmentAddClimb extends Fragment {
                     mViewModelAddClimb.setOutputLocationId(mViewModelAddClimb.getLocationIds().get(position));
                     locationNewNameView.setVisibility(View.VISIBLE);
                     mViewModelAddClimb.setOutputIsNewLocation(true);
+                    Log.i("addclimb","position=0");
                 } else {
                     mViewModelAddClimb.setOutputIsNewLocation(false);
                     locationNameView.setText(item);
@@ -333,9 +320,9 @@ public class FragmentAddClimb extends Fragment {
     }
 
     private void pickGrade() {
-        FragmentParentGradeHolder fragmentParentGradeHolder = new FragmentParentGradeHolder();
+        //FragmentParentGradeHolder fragmentParentGradeHolder = new FragmentParentGradeHolder();
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.flContent, fragmentParentGradeHolder, "fragmentParentGradeHolder")
+                .replace(R.id.flContent, MainActivity.fragmentParentGradeHolder, MainActivity.fragmentNameParentGradeHolder)
                 .addToBackStack(null)
                 .commit();
     }
@@ -343,7 +330,7 @@ public class FragmentAddClimb extends Fragment {
     private void pickAscentType() {
         FragmentAscentHolder fragmentAscentHolder = new FragmentAscentHolder();
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.flContent, fragmentAscentHolder, "fragmentAscentHolder")
+                .replace(R.id.flContent, fragmentAscentHolder, MainActivity.fragmentNameAscentHolder)
                 .addToBackStack(null)
                 .commit();
     }
@@ -362,7 +349,6 @@ public class FragmentAddClimb extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -382,21 +368,6 @@ public class FragmentAddClimb extends Fragment {
                 Log.i("AddClimb GPS", "onActivityResult = No Success!");
             }
         }
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     protected void exitFragment() {
@@ -621,7 +592,10 @@ public class FragmentAddClimb extends Fragment {
 
     private void refreshViews() {
 
+        Log.i("FragmentAddClimb","RefreshViews");
+
         if (mViewModelAddClimb.getOutputGradeNumber()!=-1 & mViewModelAddClimb.getOutputGradeName() != -1) {
+            Log.i("FragmentAddClimb","RefreshViews: " + mViewModelAddClimb.getOutputStringGradeType() + " | " + mViewModelAddClimb.getOutputStringGradeName());
             gradeView.setText(mViewModelAddClimb.getOutputStringGradeType() + " | " + mViewModelAddClimb.getOutputStringGradeName());
         }
 

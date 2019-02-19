@@ -3,48 +3,48 @@ package com.example.bobek.navdrawertest.LogBookModule.workoutpicker;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.GradeArrayListItem;
 import com.example.bobek.navdrawertest.R;
-import com.example.bobek.navdrawertest.DataModule.DatabaseContract.WorkoutTypeEntry;
 
-/**
- * Created by Bobek on 01/02/2018.
- */
+import java.util.ArrayList;
 
-public class ParentWorkoutAdapter extends CursorAdapter {
+public class WorkoutArrayAdapter extends ArrayAdapter<WorkoutArrayListItem> {
 
-    public ParentWorkoutAdapter(Context context, Cursor cursor) {
-        super(context, cursor, 0);
+    Context mContext;
+
+    public WorkoutArrayAdapter(Context context, ArrayList<WorkoutArrayListItem> listItems) {
+        super(context, 0 ,listItems);
+        mContext = context;
     }
 
-    // The newView method is used to inflate a new view and return it,
-    // you don't bind any data to the view at this point.
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.listview_item_description, parent, false);
-    }
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View listItemView = convertView;
+        if (listItemView == null) {
+            listItemView = LayoutInflater.from(getContext()).inflate(R.layout.listview_item_description, parent, false);
+        }
 
-    // The bindView method is used to bind all data to a given view
-    // such as setting the text on a TextView.
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+        WorkoutArrayListItem currentItem = getItem(position);
+
         // Find fields to populate in inflated template
-        final TextView listItemText = view.findViewById(R.id.list_item_desc_text);
-        // Extract properties from cursor
-        String body = cursor.getString(cursor.getColumnIndexOrThrow(WorkoutTypeEntry.COLUMN_WORKOUTTYPENAME));
+        final TextView listItemText = listItemView.findViewById(R.id.list_item_desc_text);
         // Populate fields with extracted properties
-        listItemText.setText(body);
+        listItemText.setText(currentItem.getName());
 
-        final String description = cursor.getString(cursor.getColumnIndexOrThrow(WorkoutTypeEntry.COLUMN_DESCRIPTION));
+        final String description = currentItem.getDescription();
 
-        ImageView infoButton = view.findViewById(R.id.list_item_desc_info_button);
+        ImageView infoButton = listItemView.findViewById(R.id.list_item_desc_info_button);
+
+        if (currentItem.getDescription()==null) {
+            infoButton.setVisibility(View.GONE);
+        }
 
         infoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +56,8 @@ public class ParentWorkoutAdapter extends CursorAdapter {
                 deleteAlert.show();
             }
         });
+
+        return listItemView;
     }
 
     public AlertDialog.Builder descriptionAlert(final String description, final Context context) {
@@ -72,6 +74,6 @@ public class ParentWorkoutAdapter extends CursorAdapter {
 
         return (alert);
 
-
     }
+
 }

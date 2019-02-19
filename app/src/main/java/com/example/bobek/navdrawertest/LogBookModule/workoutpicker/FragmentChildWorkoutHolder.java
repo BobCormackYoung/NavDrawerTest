@@ -1,8 +1,8 @@
-package com.example.bobek.navdrawertest.LogBookModule.gradepicker;
-
+package com.example.bobek.navdrawertest.LogBookModule.workoutpicker;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,36 +12,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.bobek.navdrawertest.DataModule.DatabaseReadWrite;
 import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddClimb;
-import com.example.bobek.navdrawertest.MainActivity;
+import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddWorkout;
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.GradeArrayAdapter;
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.GradeArrayListItem;
 import com.example.bobek.navdrawertest.R;
 
 import java.util.ArrayList;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class FragmentChildGradeHolder extends Fragment {
+public class FragmentChildWorkoutHolder extends Fragment {
 
-    private ViewModelAddClimb mViewModelAddClimb;
-    private ArrayList<GradeArrayListItem> childGradeArrayList;
-    GradeArrayAdapter adapter;
+    private ViewModelAddWorkout mViewModelAddWorkout;
+    private ArrayList<WorkoutArrayListItem> childWorkoutArrayList;
+    WorkoutArrayAdapter adapter;
     Context mContext;
     ListView listView;
-    Bundle inputBundle;
 
-    public FragmentChildGradeHolder() {
+    public FragmentChildWorkoutHolder() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModelAddClimb = ViewModelProviders.of(getActivity()).get(ViewModelAddClimb.class);
-        inputBundle=getArguments();
+        mViewModelAddWorkout = ViewModelProviders.of(getActivity()).get(ViewModelAddWorkout.class);
     }
 
     @Override
@@ -54,15 +50,8 @@ public class FragmentChildGradeHolder extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mViewModelAddClimb.setOutputGradeNumber(adapter.getItem(position).getRowId());
-                mViewModelAddClimb.setOutputStringGradeName(adapter.getItem(position).getName());
-
-                mViewModelAddClimb.setOutputGradeName(inputBundle.getInt("gradeTypeKey"));
-                mViewModelAddClimb.setOutputStringGradeType(inputBundle.getString("gradeTypeName"));
-
-                Log.i("ChildGradeHolder","GradeName: " + mViewModelAddClimb.getOutputStringGradeName());
-                Log.i("ChildGradeHolder","GradeType: " + mViewModelAddClimb.getOutputStringGradeType());
-
+                mViewModelAddWorkout.setOutputWorkoutNumber(adapter.getItem(position).getId());
+                mViewModelAddWorkout.setOutputStringWorkoutName(adapter.getItem(position).getName());
                 exitFragment();
             }
         });
@@ -75,20 +64,22 @@ public class FragmentChildGradeHolder extends Fragment {
     }
 
     public void refreshData() {
-        childGradeArrayList = DatabaseReadWrite.getGradeArrayList(mContext, inputBundle.getInt("gradeTypeKey"));
-        adapter = new GradeArrayAdapter(mContext, childGradeArrayList);
+        childWorkoutArrayList = DatabaseReadWrite.getWorkoutArrayList(mContext, mViewModelAddWorkout.getOutputWorkoutName());
+        adapter = new WorkoutArrayAdapter(mContext, childWorkoutArrayList);
         listView.setAdapter(adapter);
     }
 
     protected void exitFragment() {
         FragmentManager fragmentManager = getFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 0) {
-            fragmentManager.popBackStack(fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount()-2).getId(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            //fragmentManager.popBackStack();
+            fragmentManager.popBackStack();
         } else {
             Log.i("MainActivity", "nothing on backstack, calling super");
             //super.onBackPressed();
         }
     }
+
+
+
 
 }

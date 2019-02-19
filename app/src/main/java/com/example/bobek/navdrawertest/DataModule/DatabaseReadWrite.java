@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.example.bobek.navdrawertest.LogBookModule.LogBookArrayListItem;
 import com.example.bobek.navdrawertest.LogBookModule.ascentpicker.AscentArrayListItem;
 import com.example.bobek.navdrawertest.LogBookModule.gradepicker.GradeArrayListItem;
+import com.example.bobek.navdrawertest.LogBookModule.workoutpicker.WorkoutArrayListItem;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1313,6 +1314,53 @@ public class DatabaseReadWrite {
         }
     }
 
+    public static ArrayList<WorkoutArrayListItem> getWorkoutArrayList(Context mContext, int rowId) {
+
+        ArrayList<WorkoutArrayListItem> outputArrayList = new ArrayList<>();
+
+        DatabaseHelper handler = new DatabaseHelper(mContext);
+        SQLiteDatabase database = handler.getWritableDatabase();
+
+        //grade type
+        String[] projection = {
+                DatabaseContract.WorkoutListEntry._ID,
+                DatabaseContract.WorkoutListEntry.COLUMN_WORKOUTTYPECODE,
+                DatabaseContract.WorkoutListEntry.COLUMN_NAME};
+        String whereClause = DatabaseContract.WorkoutListEntry.COLUMN_WORKOUTTYPECODE + "=?";
+        String[] whereValue = {String.valueOf(rowId)};
+
+        Cursor cursor = database.query(DatabaseContract.WorkoutListEntry.TABLE_NAME,
+                projection,
+                whereClause,
+                whereValue,
+                null,
+                null,
+                null);
+
+        int idColumnOutput1 = cursor.getColumnIndex(DatabaseContract.WorkoutListEntry._ID);
+        int idColumnOutput2 = cursor.getColumnIndex(DatabaseContract.WorkoutListEntry.COLUMN_WORKOUTTYPECODE);
+        int idColumnOutput3 = cursor.getColumnIndex(DatabaseContract.WorkoutListEntry.COLUMN_NAME);
+
+        int cursorCount = cursor.getCount();
+
+        if (cursorCount != 0) {
+            while (cursor.moveToNext()) {
+                int outputId = cursor.getInt(idColumnOutput1);
+                int outputTypeCode = cursor.getInt(idColumnOutput2);
+                String outputName = cursor.getString(idColumnOutput3);
+                outputArrayList.add(new WorkoutArrayListItem(outputId, outputTypeCode, outputName));
+            }
+        }
+
+        try {
+            return outputArrayList;
+        } finally {
+            cursor.close();
+            database.close();
+            handler.close();
+        }
+    }
+
     /**
      * return a cursor for all grade types
      *
@@ -1366,6 +1414,51 @@ public class DatabaseReadWrite {
                 int outputId = cursor.getInt(idColumnOutput1);
                 String outputGradeType = cursor.getString(idColumnOutput2);
                 outputArrayList.add(new GradeArrayListItem(outputId, outputGradeType));
+            }
+        }
+
+        try {
+            return outputArrayList;
+        } finally {
+            cursor.close();
+            database.close();
+            handler.close();
+        }
+    }
+
+    public static ArrayList<WorkoutArrayListItem> getWorkoutTypeArrayList(Context mContext) {
+
+        ArrayList<WorkoutArrayListItem> outputArrayList = new ArrayList<>();
+
+        DatabaseHelper handler = new DatabaseHelper(mContext);
+        SQLiteDatabase database = handler.getWritableDatabase();
+
+        //grade type
+        String[] projection = {
+                DatabaseContract.WorkoutTypeEntry._ID,
+                DatabaseContract.WorkoutTypeEntry.COLUMN_WORKOUTTYPENAME,
+                DatabaseContract.WorkoutTypeEntry.COLUMN_DESCRIPTION};
+
+        Cursor cursor = database.query(DatabaseContract.WorkoutTypeEntry.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        int idColumnOutput1 = cursor.getColumnIndex(DatabaseContract.WorkoutTypeEntry._ID);
+        int idColumnOutput2 = cursor.getColumnIndex(DatabaseContract.WorkoutTypeEntry.COLUMN_WORKOUTTYPENAME);
+        int idColumnOutput3 = cursor.getColumnIndex(DatabaseContract.WorkoutTypeEntry.COLUMN_DESCRIPTION);
+
+        int cursorCount = cursor.getCount();
+
+        if (cursorCount != 0) {
+            while (cursor.moveToNext()) {
+                int outputId = cursor.getInt(idColumnOutput1);
+                String outputWorkoutType = cursor.getString(idColumnOutput2);
+                String outputWorkoutDescription = cursor.getString(idColumnOutput3);
+                outputArrayList.add(new WorkoutArrayListItem(outputId, outputWorkoutType, outputWorkoutDescription));
             }
         }
 

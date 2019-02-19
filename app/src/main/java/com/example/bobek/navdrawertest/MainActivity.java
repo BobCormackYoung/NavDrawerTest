@@ -15,9 +15,13 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.bobek.navdrawertest.LogBookModule.FragmentAddClimb;
+import com.example.bobek.navdrawertest.LogBookModule.FragmentAddWorkout;
 import com.example.bobek.navdrawertest.LogBookModule.FragmentLogBook;
 import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddClimb;
+import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddWorkout;
 import com.example.bobek.navdrawertest.LogBookModule.ViewModelLogBook;
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.FragmentChildGradeHolder;
+import com.example.bobek.navdrawertest.LogBookModule.gradepicker.FragmentParentGradeHolder;
 
 import java.util.List;
 
@@ -28,13 +32,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelMainActivity mViewModelMainActivity;
     private ViewModelLogBook mViewModelLogBook;
     private ViewModelAddClimb mViewModelAddClimb;
+    private ViewModelAddWorkout mViewModelAddWorkout;
     static DrawerLayout drawer;
 
     String fragmentName;
-    private String fragmentNameDashboard = "FragmentDashboard";
-    private String fragmentNameLogBook = "FragmentLogBook";
-    private String fragmentNameCalendar = "FragmentCalendar";
-    private String fragmentNameLocationManager = "FragmentLocationManager";
+    public static String fragmentNameDashboard = "FragmentDashboard";
+    public static String fragmentNameLogBook = "FragmentLogBook";
+    public static String fragmentNameCalendar = "FragmentCalendar";
+    public static String fragmentNameLocationManager = "FragmentLocationManager";
+    public static String fragmentNameAddClimb = "fragmentAddClimb";
+    public static String fragmentNameAddWorkout = "fragmentAddWorkout";
+    public static String fragmentNameChildGradeHolder = "fragmentChildGradeHolder";
+    public static String fragmentNameParentGradeHolder = "fragmentParentGradeHolder";
+    public static String fragmentNameChildWorkoutHolder = "fragmentChildWorkoutHolder";
+    public static String fragmentNameParentWorkoutHolder = "fragmentParentWorkoutHolder";
+    public static String fragmentNameAscentHolder = "fragmentAscentHolder";
+    public static FragmentParentGradeHolder fragmentParentGradeHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // ViewModel for LogBookData
         mViewModelLogBook = ViewModelProviders.of(this).get(ViewModelLogBook.class);
         mViewModelAddClimb = ViewModelProviders.of(this).get(ViewModelAddClimb.class);
+        mViewModelAddWorkout = ViewModelProviders.of(this).get(ViewModelAddWorkout.class);
+
+        fragmentParentGradeHolder = new FragmentParentGradeHolder();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -89,6 +105,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (fragment instanceof FragmentAddClimb) {
             mViewModelAddClimb.resetData();
             getSupportFragmentManager().popBackStack();
+        } else if (fragment instanceof FragmentAddWorkout) {
+            mViewModelAddWorkout.resetData();
+            getSupportFragmentManager().popBackStack();
+        //} else if (fragment instanceof FragmentChildGradeHolder) {
+
         } else {
             super.onBackPressed();
         }

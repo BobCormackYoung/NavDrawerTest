@@ -14,7 +14,9 @@ public class ViewModelLogBook extends AndroidViewModel {
     Calendar currentDate = null;
     boolean isDate = false;
     boolean isNewClimb = true;
+    boolean isNewWorkout = true;
     int addClimbRowId;
+    int addWorkoutRowId;
     long addClimbDate;
 
     public ViewModelLogBook(@NonNull Application application) {
@@ -35,11 +37,17 @@ public class ViewModelLogBook extends AndroidViewModel {
     public void setIsNewClimbTrue() {isNewClimb = true;}
     public void setIsNewClimbFalse() {isNewClimb = false;}
     public boolean getIsNewClimb() {return isNewClimb;}
+    public void setIsNewWorkoutTrue() {isNewWorkout = true;}
+    public void setIsNewWorkoutFalse() {isNewWorkout = false;}
+    public boolean getIsNewWorkout() {return isNewClimb;}
 
-    public void setAddClimbRowId(int inAddClimbRowId) {addClimbRowId = inAddClimbRowId;}
+    public void setAddClimbRowId(int input) {addClimbRowId = input;}
     public int getAddClimbRowId() {return addClimbRowId;}
 
-    public void setAddClimbDate(long inAddClimbDate) {addClimbDate=inAddClimbDate;}
+    public void setAddWorkoutRowId(int input) {addClimbRowId = input;}
+    public int getAddWorkoutRowId() {return addClimbRowId;}
+
+    public void setAddClimbDate(long input) {addClimbDate=input;}
     public long getAddClimbDate() {return addClimbDate;}
 
 

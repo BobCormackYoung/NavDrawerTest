@@ -1,4 +1,4 @@
-package com.example.bobek.navdrawertest.LogBookModule.gradepicker;
+package com.example.bobek.navdrawertest.LogBookModule.workoutpicker;
 
 
 import android.arch.lifecycle.ViewModelProviders;
@@ -15,10 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.bobek.navdrawertest.DataModule.DatabaseReadWrite;
-import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddClimb;
-import com.example.bobek.navdrawertest.LogBookModule.ascentpicker.AscentArrayAdapter;
-import com.example.bobek.navdrawertest.LogBookModule.ascentpicker.AscentArrayListItem;
-import com.example.bobek.navdrawertest.LogBookModule.ascentpicker.FragmentAscentHolder;
+import com.example.bobek.navdrawertest.LogBookModule.ViewModelAddWorkout;
 import com.example.bobek.navdrawertest.MainActivity;
 import com.example.bobek.navdrawertest.R;
 
@@ -27,23 +24,25 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FragmentParentGradeHolder extends Fragment {
+public class FragmentParentWorkoutHolder extends Fragment {
 
-    private ViewModelAddClimb mViewModelAddClimb;
-    private ArrayList<GradeArrayListItem> parentGradeArrayList;
-    GradeArrayAdapter adapter;
+
+    private ViewModelAddWorkout mViewModelAddWorkout;
+    private ArrayList<WorkoutArrayListItem> parentWorkoutArrayList;
+    WorkoutArrayAdapter adapter;
     Context mContext;
     ListView listView;
 
-    public FragmentParentGradeHolder() {
+    public FragmentParentWorkoutHolder() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mViewModelAddClimb = ViewModelProviders.of(getActivity()).get(ViewModelAddClimb.class);
+        mViewModelAddWorkout = ViewModelProviders.of(getActivity()).get(ViewModelAddWorkout.class);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,9 +54,9 @@ public class FragmentParentGradeHolder extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //mViewModelAddClimb.setOutputGradeName(adapter.getItem(position).getRowId());
-                //mViewModelAddClimb.setOutputStringGradeType(adapter.getItem(position).getName());
-                launchChildFragment(position);
+                mViewModelAddWorkout.setOutputWorkoutName(adapter.getItem(position).getId());
+                mViewModelAddWorkout.setOutputStringWorkoutType(adapter.getItem(position).getName());
+                launchChildFragment();
             }
         });
 
@@ -67,21 +66,17 @@ public class FragmentParentGradeHolder extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        //if (mViewModelAddClimb.getOutputGradeName()!=-1) {
-        //   exitFragment();
-        //}
+        if (mViewModelAddWorkout.getOutputWorkoutName()!=-1) {
+            exitFragment();
+        } else {
+            refreshData();
+        }
     }
 
-    private void launchChildFragment(int position) {
-        Bundle bundle = new Bundle();
-        bundle.putInt("gradeTypeKey", adapter.getItem(position).getRowId());
-        bundle.putString("gradeTypeName", adapter.getItem(position).getName());
-
-        FragmentChildGradeHolder fragmentChildGradeHolder = new FragmentChildGradeHolder();
-        fragmentChildGradeHolder.setArguments(bundle);
-
+    private void launchChildFragment() {
+        FragmentChildWorkoutHolder fragmentChildWorkoutHolder = new FragmentChildWorkoutHolder();
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.flContent, fragmentChildGradeHolder, MainActivity.fragmentNameChildGradeHolder)
+                .replace(R.id.flContent, fragmentChildWorkoutHolder, MainActivity.fragmentNameChildWorkoutHolder)
                 .addToBackStack(null)
                 .commit();
     }
@@ -91,8 +86,8 @@ public class FragmentParentGradeHolder extends Fragment {
     }
 
     public void refreshData() {
-        parentGradeArrayList = DatabaseReadWrite.getGradeTypeArrayList(mContext);
-        adapter = new GradeArrayAdapter(mContext, parentGradeArrayList);
+        parentWorkoutArrayList = DatabaseReadWrite.getWorkoutTypeArrayList(mContext);
+        adapter = new WorkoutArrayAdapter(mContext, parentWorkoutArrayList);
         listView.setAdapter(adapter);
     }
 
